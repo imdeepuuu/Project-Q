@@ -53,3 +53,28 @@ def test_qubo_and_ising_diagonals_match():
         qubo.cost_vector(),
         ising_diagonal(h, couplings, constant, qubo.n),
     )
+
+
+def test_unbalanced_qubo_global_minimum():
+    qubo = qubo_unbalanced()
+    costs = qubo.cost_vector()
+    bitstrings = all_bitstrings(qubo.n)
+
+    best = brute_force()
+
+    # The QUBO minimum must equal the classical optimum.
+    min_cost = costs.min()
+    min_states = bitstrings[
+        abs(costs - min_cost) < 1e-9
+    ]
+
+    assert best["best_value"] == 26
+    assert best["best_weight"] == 14
+
+    
+    for x in min_states:
+        value = sum(v * bit for v, bit in zip(VALUES, x))
+        weight = sum(w * bit for w, bit in zip(WEIGHTS, x))
+
+        assert weight <= CAPACITY
+        assert value == best["best_value"]
