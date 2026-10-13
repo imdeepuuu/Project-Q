@@ -1,0 +1,117 @@
+{
+  "problem": {
+    "values": [
+      10,
+      4,
+      7,
+      5,
+      8
+    ],
+    "weights": [
+      5,
+      3,
+      4,
+      2,
+      6
+    ],
+    "capacity": 15,
+    "qubo": "U (unbalanced, 5 qubits)",
+    "qubo_penalty": {
+      "lam1": 3.0,
+      "lam2": 1.0
+    }
+  },
+  "classical": {
+    "best_value": 26,
+    "best_weight": 14,
+    "best_sets": [
+      [
+        1,
+        1,
+        1,
+        1,
+        0
+      ]
+    ],
+    "feasible_subsets": 28,
+    "subsets_examined": 32,
+    "runtime_seconds": 8.619999971415382e-05
+  },
+  "qaoa": {
+    "p": 1,
+    "best_expected_qubo_cost": -15.544645569270592,
+    "starts": 12,
+    "maxiter_per_start": 250,
+    "optimization_runtime_seconds": 2.088642400000026
+  },
+  "processors": [
+    {
+      "processor": "A",
+      "processor_name": "Processor A (5q baseline, branching T-tree)",
+      "physical_qubits": 5,
+      "shots": 4096,
+      "transpile_seconds": 0.05541049999919778,
+      "noisy_simulation_seconds": 0.04223429999910877,
+      "classical_brute_force_seconds": 8.619999971415382e-05,
+      "qaoa_optimization_seconds": 2.088642400000026,
+      "depth": 60,
+      "cx_count": 32,
+      "swap_count": 4,
+      "1q_gates": 50,
+      "cx_depth": 28,
+      "est_success_prob": 0.7705,
+      "P_optimal": 0.0791015625,
+      "P_feasible": 0.783203125,
+      "expected_value_feasible_only": 15.8359375,
+      "approx_ratio": 0.6090745192307693,
+      "best_feasible_value_in_samples": 26,
+      "expected_qubo_cost": -13.32080078125,
+      "energy_ratio": 0.9294269268329327,
+      "hellinger_fidelity_vs_ideal": 0.9895676186354173
+    },
+    {
+      "processor": "B",
+      "processor_name": "Processor B (9q, dense K5-minus-2 core + sparse tail)",
+      "physical_qubits": 9,
+      "shots": 4096,
+      "transpile_seconds": 0.01814129999911529,
+      "noisy_simulation_seconds": 0.023849400000472087,
+      "classical_brute_force_seconds": 8.619999971415382e-05,
+      "qaoa_optimization_seconds": 2.088642400000026,
+      "depth": 38,
+      "cx_count": 23,
+      "swap_count": 1,
+      "1q_gates": 50,
+      "cx_depth": 17,
+      "est_success_prob": 0.8061,
+      "P_optimal": 0.083740234375,
+      "P_feasible": 0.786376953125,
+      "expected_value_feasible_only": 16.03173828125,
+      "approx_ratio": 0.6166053185096154,
+      "best_feasible_value_in_samples": 26,
+      "expected_qubo_cost": -14.0078125,
+      "energy_ratio": 0.9327298677884616,
+      "hellinger_fidelity_vs_ideal": 0.9926600030362404
+    }
+  ],
+  "routing_sweep": [
+    {
+      "processor": "A",
+      "swaps_mean": 4.15,
+      "swaps_std": 0.36634754853252327,
+      "cx_mean": 32.35,
+      "cx_std": 0.9333020044867296,
+      "depth_mean": 59.6,
+      "depth_std": 1.9303667499917434
+    },
+    {
+      "processor": "B",
+      "swaps_mean": 1.0,
+      "swaps_std": 0.0,
+      "cx_mean": 23.0,
+      "cx_std": 0.0,
+      "depth_mean": 40.75,
+      "depth_std": 2.863104682168054
+    }
+  ]
+}

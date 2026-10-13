@@ -7,8 +7,8 @@ import numpy as np
 from qiskit_aer import AerSimulator
 from qiskit.quantum_info import hellinger_fidelity
 
-from processors import OFFICIAL_NOISE
-from problem import CAPACITY, VALUES, WEIGHTS
+from .processors import OFFICIAL_NOISE
+from .problem import CAPACITY, VALUES, WEIGHTS
 
 
 def circuit_metrics(t, swaps, p=OFFICIAL_NOISE):

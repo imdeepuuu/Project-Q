@@ -106,7 +106,7 @@ def qubo_slack(values=VALUES, weights=WEIGHTS, capacity=CAPACITY, A=None):
     coef = np.array(list(weights) + [2 ** k for k in range(m)], dtype=float)
     N = n + m
     if A is None:
-        A = float(max(values))
+        A = float(sum(values) + 1)
     Q = np.zeros((N, N))
     for i in range(N):
         Q[i, i] = A * (coef[i] ** 2 - 2 * capacity * coef[i]) - (values[i] if i < n else 0)
@@ -118,13 +118,14 @@ def qubo_slack(values=VALUES, weights=WEIGHTS, capacity=CAPACITY, A=None):
 # --------------------------------------------------------------------------- #
 # Formulation U: slack-free "unbalanced penalisation" (n qubits)
 # --------------------------------------------------------------------------- #
-def qubo_unbalanced(values=VALUES, weights=WEIGHTS, capacity=CAPACITY, lam1=1.0, lam2=0.1):
+def qubo_unbalanced(values=VALUES, weights=WEIGHTS, capacity=CAPACITY, lam1=3.0, lam2=1.0):
     """min  -sum v_i x_i  - lam1 * h + lam2 * h^2 ,   h = W - w.x .
 
-    h^2 is a quadratic penalty that grows for weight OVERFLOW (h<0); the linear term -lam1*h
-    makes the penalty asymmetric (2nd-order expansion of exp(-k h)), so under-filled bags are
-    not punished as in an equality constraint.  Only n = 5 qubits are required, so this
-    formulation fits on the 5-qubit Processor A.
+    The quadratic term penalizes both under- and over-capacity states, while the linear term
+    makes the penalty asymmetric. The defaults are calibrated for the official inline instance
+    and make its global QUBO minimum the exact feasible knapsack optimum. For general instances,
+    use :func:`qubo_slack` for an exact inequality encoding. This formulation uses only n item
+    qubits and fits on Processor A.
     """
     n = len(values)
     w = np.asarray(weights, float)

@@ -4,7 +4,7 @@ from __future__ import annotations
 import numpy as np
 from qiskit import transpile
 
-from processors import BASIS_GATES, TRANSPILE_CFG
+from .processors import BASIS_GATES, TRANSPILE_CFG
 
 
 def transpile_on(qc, cmap, seed=TRANSPILE_CFG["seed_transpiler"],

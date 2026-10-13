@@ -1,0 +1,8 @@
+numpy>=1.26
+scipy>=1.11
+qiskit>=1.0
+qiskit-aer>=0.14
+networkx>=3.0
+matplotlib>=3.8
+pandas>=2.0
+pytest>=8.0

@@ -100,10 +100,9 @@ PROCESSOR_META = {
         "rationale": (
             "Co-designed for this problem: the knapsack cost Hamiltonian couples every pair of items "
             "(w_i*w_j terms => K5).  Qubits 0-3 form a K4 and qubit 4 couples to 1 and 2, so 8 of the "
-            "10 required ZZ pairs are native and only 2 need routing.  Qubits 5-8 form a sparse tail "
-            "(slack bits of formulation S) so the whole chip keeps 12 edges = the same budget as the "
-            "heavy-hex reference.  A 20-seed sweep showed it beats the 3x3 grid (bipartite, no "
-            "triangles) and the heavy-hex reference on SWAPs/CX at p=1 and p=2."),
+            "10 required ZZ pairs are native. Qubits 5-8 form a sparse tail that remains available "
+            "for larger encodings. This experiment routes the same five-item QAOA circuit on A and B; "
+            "the dense core preserves most of its K5 cost-layer couplings while the tail is unused."),
     },
 }
 
