@@ -47,7 +47,3 @@ src/knapsack.py                    QUBO, Hamiltonian, QAOA circuit, optimizer, e
 results/tables/                    results.csv (kit format), bell.csv, quality.csv, qaoa_runs.json, qubo_9x9.json, landscape_D_noisy.npz
 results/figures/                   PNG figures used in the report
 ```
-
-## AI use
-
-Claude (Anthropic) was used to help write the QUBO/QAOA code, search candidate Processor D topologies and draft the README and report. All numbers come from running `main.ipynb`; the team checked the formulation and results and is responsible for them.
