@@ -83,7 +83,17 @@ An independent implementation of the Bell procedure (our own circuits and parity
 
 The grid row isolates what the wrap-around edges buy: the same 3×3 layout without them needs 117 CX, so the 6 wrap-around couplers save 28 CX. Extra qubits did not help: the best 12-qubit candidates are worse, because with K₉ every logical qubit must interact with every other, so the router gains more from short distances than from spare qubits.
 
-**Expected effect vs measured.** We expected D to roughly halve the SWAPs and cut CX by about a quarter, which should reduce the noise penalty without changing the ideal result. Measured on the same angles:
+**Expected effect vs measured.** We predict D's effect from the two coupling graphs and B's measured numbers only, without using any D result (notebook Section 6, `results/tables/processor_D_prediction.csv`). Because our cost graph is K₉, every one of the 36 qubit pairs must interact, whatever the placement, so the chip's pairwise distances fix the routing demand: a pair at distance d needs about d − 1 SWAPs. Summed over all 36 pairs, that demand is **34 on B** (12 pairs at distance 1, 15 at 2, 8 at 3, 1 at 4) and **18 on D** (18 at distance 1, 18 at 2). Scaling B's measured 17 SWAPs by 18/34, assuming 3 CX per SWAP, and taking the noise penalty as proportional to the CX count gives:
+
+| | B measured | D predicted | D measured |
+|---|---|---|---|
+| SWAPs | 17 | 9.0 | **9** |
+| CX (72 logical + 3 per SWAP) | 121 | 99 | **89** |
+| Noise penalty on mean QUBO cost | 33.6 | 27.0 | **21.2** |
+
+The SWAP prediction is exact. CX and the noise penalty came out *better* than predicted: on D the transpiler cancels 10 CX beyond the 3-per-SWAP count (on B only 2: the model gives 123 against 121 measured), and the energy penalty is not simply proportional to CX count. So the simple model gets the direction and the routing right, and is conservative about the gain.
+
+The full measured comparison, on the same angles:
 
 | | B | D | Change |
 |---|---|---|---|
@@ -96,6 +106,8 @@ The grid row isolates what the wrap-around edges buy: the same 3×3 layout witho
 | Mean QUBO cost, noisy | 82.8 | 73.7 | −11% |
 | Noise penalty (noisy − ideal) | +33.6 | +21.2 | −37% |
 | P_feasible, noisy | 0.943 | 0.943 | equal |
+
+![Resources on B and D](results/figures/resources_B_D.png)
 
 The ideal rows prepare the same state on both processors, so their difference is shot noise. The noise-induced rise in mean QUBO cost is 37% smaller on D, consistent with 26% fewer CX and a 46% smaller two-qubit depth. P_feasible is the same on both, because feasibility is a coarse property that survives this level of noise. The gain from D shows up in the energy, not in the feasibility rate.
 

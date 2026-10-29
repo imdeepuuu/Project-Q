@@ -51,7 +51,8 @@ data/instance.json                 PS-O3 section of the locked instances.json
 processors/processor_{A,B,D}.json  D is the frozen design
 src/knapsack.py                    QUBO, Hamiltonian, QAOA circuit, optimizer, evaluation
 results/tables/                    results.csv (kit format), bell.csv, quality.csv, qaoa_runs.json, qubo_9x9.json, landscape_D_noisy.npz, additional_tradeoff.csv,
-                                   bell_noise_check.csv, processor_D_search.csv
+                                   bell_noise_check.csv, processor_D_search.csv,
+                                   processor_D_prediction.csv
 results/figures/                   PNG figures used in the report
 ```
 

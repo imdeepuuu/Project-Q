@@ -1,0 +1,5 @@
+quantity,B_measured,D_predicted,D_measured
+routing_demand,34,18,18
+swaps,17,9.0,9
+cx,121,99.0,89
+noise_penalty,33.6,27.0,21.2
