@@ -1,4 +1,6 @@
 __pycache__/
+.ipynb_checkpoints/
 .pytest_cache/
 .venv/
-.ipynb_checkpoints/
+venv/
+opt-env/

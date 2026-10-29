@@ -63,12 +63,12 @@ Extra qubits did not help: with K₉ every logical qubit has to interact with ev
 | SWAPs | 17 | 9 | −47% |
 | Depth | 117 | 76 | −35% |
 | Two-qubit depth | 79 | 43 | −46% |
-| Mean QUBO cost, ideal | 48.9 | 52.3 | sampling difference only |
-| Mean QUBO cost, noisy | 83.0 | 73.5 | −11% |
-| Noise penalty (noisy − ideal) | +34.1 | +21.2 | −38% |
+| Mean QUBO cost, ideal | 49.2 | 52.5 | sampling difference only |
+| Mean QUBO cost, noisy | 82.8 | 73.7 | −11% |
+| Noise penalty (noisy − ideal) | +33.6 | +21.2 | −37% |
 | P_feasible, noisy | 0.943 | 0.943 | equal |
 
-The ideal rows prepare the same state on both processors, so their difference is shot noise. The noise-induced rise in mean QUBO cost is 38% smaller on D, consistent with 26% fewer CX and a 46% smaller two-qubit depth. P_feasible is the same on both, because feasibility is a coarse property that survives this level of noise. The gain from D shows up in the energy, not in the feasibility rate.
+The ideal rows prepare the same state on both processors, so their difference is shot noise. The noise-induced rise in mean QUBO cost is 37% smaller on D, consistent with 26% fewer CX and a 46% smaller two-qubit depth. P_feasible is the same on both, because feasibility is a coarse property that survives this level of noise. The gain from D shows up in the energy, not in the feasibility rate.
 
 **Trade-off.** The torus needs wrap-around couplers between opposite edges of the grid. On a planar superconducting chip these are long connections that are hard to fabricate and add crosstalk, and giving every qubit degree 4 raises crosstalk and frequency-crowding risk compared with B. The design is also tuned to dense, all-to-all cost graphs; for a sparse problem such as a chain, a simpler lattice would do as well with fewer couplers.
 
@@ -78,9 +78,9 @@ The ideal rows prepare the same state on both processors, so their difference is
 
 | Seed | Start (γ, β) | Final (γ, β) | ⟨H⟩ | Exact P_feasible | Exact P_opt |
 |---|---|---|---|---|---|
-| 0 | (2.001, 0.848) | (2.537, 1.518) | 232.0 | 0.873 | 0.032 |
+| 0 | (2.001, 0.848) | (3.648, 1.512) | 232.5 | 0.874 | 0.032 |
 | **1** | (1.608, 2.986) | **(0.283, 2.865)** | **50.2** | **0.955** | 0.023 |
-| 2 | (0.822, 0.938) | (3.016, 3.088) | 232.3 | 0.876 | 0.032 |
+| 2 | (0.822, 0.938) | (3.017, 3.088) | 232.3 | 0.876 | 0.032 |
 | 3 | (0.269, 0.744) | (0.284, 1.354) | 130.6 | 0.892 | 0.039 |
 | 4 | (2.963, 1.606) | (4.060, 1.599) | 232.9 | 0.875 | 0.031 |
 
@@ -91,7 +91,7 @@ Mean ± std over the five seeds: P_feasible 0.894 ± 0.031, P_opt 0.031 ± 0.005
 | Processor | Condition | P_feasible | P_opt | Best feasible (items, weight) | % of V\* |
 |---|---|---|---|---|---|
 | A | both | not executable: needs 9 qubits, has 5 | | | |
-| B | ideal | 0.959 | 0.021 | 26 ({1,2,3,4}, 14) | 100 |
+| B | ideal | 0.958 | 0.021 | 26 ({1,2,3,4}, 14) | 100 |
 | B | noisy | 0.943 | 0.025 | 26 ({1,2,3,4}, 14) | 100 |
 | D | ideal | 0.956 | 0.023 | 26 ({1,2,3,4}, 14) | 100 |
 | D | noisy | 0.943 | 0.023 | 26 ({1,2,3,4}, 14) | 100 |
@@ -109,21 +109,60 @@ Grid 20 × 20, β ∈ [0, π], γ ∈ [0, 1.0] in units of H/120 (so γ_max = 1/
 
 We chose γ_max = 1.0 after an ideal coarse scan over γ ∈ [0, π]: for γ > 1 the cost layer gives the 46 terms large, unrelated phases, the interference averages out and the energy flattens towards the uniform-superposition value (about 232). The cost is periodic in β with period π (the mixer is RX(2β)), and at β = 0 or π/2 it equals the uniform value for every γ. Between those lines it alternates between bright bands (β ≈ 0.5 and 2.1), where probability is pushed towards high-penalty states, and dark valleys (β ≈ 1.3 and 2.8), where it is pushed towards low-penalty ones. The grid minimum, 66.6 at (γ, β) = (0.263, 2.811), sits next to our optimized point (0.283, 2.865), so the noisy landscape and the ideal optimizer agree. The narrow γ window of the good valley (about 0.15–0.45) explains why seeds that started at large γ never found it.
 
-## 6. Analysis, limitations and next steps
+## 6. Additional experiment: why P_opt does not beat random
 
-**Feasibility vs quality.** QAOA beats random clearly on feasibility: 0.943 noisy on both B and D vs 0.875, which halves the infeasible fraction (12.5% → 5.7%). It does **not** beat random on P_opt (0.023 vs 0.031). The reason is the scale of the terms: the penalty coefficients reach 880 while item values are at most 10, so the cost Hamiltonian is almost entirely penalty. At p = 1, QAOA moves probability towards low-penalty states, which includes every feasible subset with its matching slack, but it hardly distinguishes value 26 from value 22 inside the feasible set. The best sampled solution is still the optimum on every executable processor (100% of V\*), because the optimum is sampled about 95 times in 4096 shots.
+The required rows beat random on feasibility but not on P_opt. To find out why, we computed exact output probabilities (no shot noise) for many angle choices and objectives, all with seeds 0–4 and COBYLA, using only problem data, never the known optimum. A fast exact p = 1 simulator was used and checked against Qiskit's `Statevector` (largest probability difference 6 × 10⁻¹⁷). Results are in `results/tables/additional_tradeoff.csv`. These are additional experiments; the required rows are unchanged.
 
-**Architecture.** Connectivity is the dominant resource factor for this problem because the cost graph is K₉. Moving from B to D removed 32 CX and 41 layers of depth, and reduced the noise penalty on the mean cost by 38%. Feasibility did not change, so the benefit of D appears in energy, not in P_feasible, at the official noise level.
+**Objective quality of the required angles (exact).**
+
+| | P_feasible | P_opt | Mean value if feasible | Expected feasible value |
+|---|---|---|---|---|
+| Uniform random | 0.875 | 0.031 | 15.14 | 13.25 |
+| Required QAOA angles | 0.955 | 0.023 | 14.71 | 14.06 |
+
+QAOA raises the expected feasible value by 6% (14.06 vs 13.25), but **all of that gain comes from being feasible more often**. Among feasible samples, the average value is slightly *below* random (14.71 vs 15.14). The circuit has learned "stay within capacity", not "pick valuable items".
+
+**What p = 1 can reach at all.** We evaluated every (γ, β) on a 61 × 61 grid:
+
+- The highest P_opt any p = 1 angles give is **0.079, 2.5× random**, at (γ, β) = (0.725, 0.471). But P_feasible there is only 0.697, worse than random. Sampled on Processor D with official noise, the same angles give P_opt 0.070 and P_feasible 0.736.
+- Among angles that keep P_feasible at or above random (0.875), the best P_opt is 0.044 (1.4× random).
+
+![Trade-off](results/figures/tradeoff_feasibility_vs_popt.png)
+
+So at p = 1 there is a real **trade-off**: angles that concentrate on the optimum give up feasibility. Because the penalty dominates the energy (coefficients up to 880 against item values up to 10), minimizing mean energy always picks the high-feasibility end, the blue star in the figure.
+
+**Fixes we tried (exact, mean ± std over seeds 0–4).**
+
+| Change | P_feasible | P_opt | Expected feasible value | Effect |
+|---|---|---|---|---|
+| Required (energy, γ₀ ∈ [0, π]) | 0.894 ± 0.031 | 0.031 ± 0.005 | 13.78 | 3 of 5 seeds stuck on the plateau |
+| Energy, γ₀ ∈ [0, 0.5] | 0.917 ± 0.031 | 0.033 ± 0.008 | 14.69 | 0 of 5 on the plateau; 2 of 5 reach the best valley |
+| CVaR, α = 0.1 | 0.881 ± 0.037 | 0.030 ± 0.004 | 13.06 | no gain |
+| Maximize expected feasible value | 0.881 ± 0.005 | 0.032 ± 0.006 | 13.71 | best seed: P_opt 0.041 at P_feasible 0.886 |
+| Energy, p = 2 | 0.915 ± 0.006 | 0.029 ± 0.007 | 14.35 | no gain from random starts |
+
+**Penalty sweep (p = 1, best-energy seed).** At P = 1 the QUBO minimum is no longer uniquely the optimum: items {1, 3, 4, 5} (value 30, weight 17) tie with it at −26. For P = 2, 3, 5 and 10 the results barely move (P_feasible 0.953–0.956, P_opt 0.022–0.024). P decides whether the formulation is correct, not how well p = 1 QAOA performs.
+
+**What we learned.**
+- Restricting the initial γ is the one change that clearly helps: it removes the plateau failures and raises the mean expected feasible value from 13.78 to 14.69. Uniform starts in [0, π] waste most seeds.
+- CVaR, a different P and p = 2 from random starts do not raise P_opt. The limit is structural at p = 1, not an optimizer problem.
+- Only changing *what we optimize* moves the operating point: maximizing expected feasible value found angles with P_opt 1.3× random while staying more feasible than random, but only for one seed of five.
+
+## 7. Analysis, limitations and next steps
+
+**Feasibility vs quality.** QAOA beats random clearly on feasibility: 0.943 noisy on both B and D vs 0.875, which halves the infeasible fraction (12.5% → 5.7%). It does **not** beat random on P_opt (0.023 vs 0.031). The reason is the scale of the terms: the penalty coefficients reach 880 while item values are at most 10, so the cost Hamiltonian is almost entirely penalty. At p = 1, QAOA moves probability towards low-penalty states, which includes every feasible subset with its matching slack, but it hardly distinguishes value 26 from value 22 inside the feasible set. Section 6 confirms this with exact numbers: among feasible samples the mean value is 14.71, against 15.14 for random. The best sampled solution is still the optimum on every executable processor (100% of V\*), because the optimum is sampled 86 to 102 times in 4096 shots, depending on processor and noise.
+
+**Architecture.** Connectivity is the dominant resource factor for this problem because the cost graph is K₉. Moving from B to D removed 32 CX and 41 layers of depth, and reduced the noise penalty on the mean cost by 37%. Feasibility did not change, so the benefit of D appears in energy, not in P_feasible, at the official noise level.
 
 **Limitations.**
 - p = 1 only; one optimizer; angles optimized in ideal simulation and reused on noisy runs.
-- 3 of 5 initializations got stuck on the plateau, so a single run is not reliable without a good starting γ.
+- With the required uniform starts, 3 of 5 initializations got stuck on the plateau. Restricting γ₀ to [0, 0.5] removes this, but 3 of 5 seeds still stop in a secondary valley, so a single run is still not reliable.
 - The slack encoding spends 4 of 9 qubits on bookkeeping and adds 26 of the 36 couplings.
 - Results are from a uniform depolarizing model; real devices have non-uniform, correlated noise.
 
-**Next improvements (additional experiments, not required runs).**
-- Draw γ from [0, 0.5] (or warm-start from a coarse grid) so every initialization lands in the useful valley.
-- Use a CVaR objective (average of the best α fraction of shots), which rewards concentrating mass on the optimum rather than lowering the mean penalty.
-- Try smaller P or an unbalanced-penalization encoding without slack; that needs only 5 qubits, so it would even fit Processor A and remove most of the routing cost.
-- Run p = 2 and compare the CX cost against the P_opt gain.
-- Re-optimize angles under noise on each processor and test D with improved, cited noise rates.
+**Next improvements.** Restricting γ₀, CVaR, other P values and p = 2 from random starts are already tested in Section 6. Based on those results:
+- Warm-start p = 2 from the p = 1 optimum (parameter transfer) instead of random starts, which landed in poor local minima.
+- Optimize an objective that trades feasibility for quality explicitly, for example maximize the probability of high-value feasible bags subject to P_feasible ≥ 0.875. Section 6 shows such angles exist (P_opt 0.044 at P_feasible ≥ 0.875).
+- Use an unbalanced-penalization encoding without slack qubits. It needs only 5 qubits, so it would fit Processor A, remove 26 of the 36 couplings and most of the routing cost.
+- Post-process samples classically: keep feasible shots and apply a greedy 1-flip improvement, which costs nothing on the quantum side.
+- Re-optimize angles under noise on each processor, and test D with improved, cited noise rates.

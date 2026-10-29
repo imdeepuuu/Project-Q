@@ -1,0 +1,14 @@
+experiment,P,p,P_feasible_mean,P_feasible_std,P_opt_mean,P_opt_std,expected_feasible_value_mean,best_seed,best_P_feasible,best_P_opt,theta,note
+"energy, required (seeds 0-4)",5,1,0.8944,0.0312,0.0313,0.0053,13.7848,1,0.9554,0.0226,0.2830 2.8648,
+"energy, initial γ in [0, 0.5]",5,1,0.9171,0.0312,0.0326,0.0082,14.6949,2,0.9554,0.0226,-0.2831 0.2767,
+CVaR α=0.1,5,1,0.8808,0.0373,0.03,0.0044,13.0586,1,0.9466,0.0214,0.4510 2.9059,
+max expected feasible value,5,1,0.8812,0.0045,0.0317,0.0057,13.7143,3,0.8863,0.0411,0.2986 1.3230,
+"energy, p=2",5,2,0.9146,0.0065,0.0285,0.0074,14.3542,0,0.9204,0.03,3.3020 1.7569 0.2089 0.6992,
+penalty sweep P=1,1,1,,,,,14.3232,1,0.9479,0.0256,0.2869 2.8678,QUBO minimum is NOT uniquely the optimum
+penalty sweep P=2,2,1,,,,,14.1596,1,0.9527,0.0237,0.2845 2.8662,unique minimum = optimum
+penalty sweep P=3,3,1,,,,,14.1025,1,0.9542,0.0231,0.2837 2.8655,unique minimum = optimum
+penalty sweep P=5,5,1,,,,,14.0553,1,0.9554,0.0226,0.2830 2.8648,unique minimum = optimum
+penalty sweep P=10,10,1,,,,,14.0198,1,0.9562,0.0223,0.2825 2.8643,unique minimum = optimum
+D noisy 4096 shots: required angles,5,1,,,,,,,0.9431,0.0227,0.2830 2.8648,
+D noisy 4096 shots: max-P_opt angles (grid),5,1,,,,,,,0.7361,0.0703,0.7250 0.4712,
+D noisy 4096 shots: CVaR α=0.1 best seed,5,1,,,,,,,0.9482,0.0229,0.4510 2.9059,

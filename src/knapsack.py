@@ -11,7 +11,7 @@ from qff_phase2 import counts_to_x
 
 
 def load_instance(path="data/instance.json"):
-    d = json.load(open(path))["PS-O3"]
+    d = json.load(open(path, encoding="utf-8"))["PS-O3"]
     return d["values"], d["weights"], d["capacity"], d["reference_penalty_P"]
 
 
