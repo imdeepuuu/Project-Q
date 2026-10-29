@@ -1,7 +1,7 @@
 {
-  "name": "Processor A (5q baseline, branching T-tree)",
-  "n_qubits": 5,
-  "coupling_map": [
+  "name": "Processor A",
+  "num_qubits": 5,
+  "edges": [
     [
       0,
       1
@@ -18,36 +18,5 @@
       3,
       4
     ]
-  ],
-  "bidirectional": true,
-  "basis_gates": [
-    "rz",
-    "sx",
-    "x",
-    "cx"
-  ],
-  "noise_model": {
-    "type": "depolarizing+readout",
-    "p_1q_depolarizing": 0.001,
-    "p_cx_depolarizing": 0.005,
-    "p_readout": 0.01,
-    "noised_1q_gates": [
-      "rz",
-      "sx",
-      "x"
-    ]
-  },
-  "transpile": {
-    "optimization_level": 1,
-    "seed_transpiler": 42,
-    "shots": 4096
-  },
-  "graph_stats": {
-    "edges": 4,
-    "max_degree": 3,
-    "mean_degree": 1.6,
-    "diameter": 3,
-    "avg_shortest_path": 1.8
-  },
-  "design_rationale": "Kept equal to the guide's branching-tree baseline: it is the sparsest connected 5-qubit graph that still has a degree-3 hub (qubit 1) and mirrors real 5-qubit IBM Falcon devices.  4 edges vs the 10 edges a dense K5 Ising cost layer needs => it acts as the 'connectivity-starved' control of the co-design experiment."
+  ]
 }

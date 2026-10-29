@@ -1,0 +1,93 @@
+{
+  "name": "Processor D",
+  "team": "KanyaRaasi",
+  "problem_statement": "PS-O3",
+  "num_qubits": 9,
+  "edges": [
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      2
+    ],
+    [
+      0,
+      3
+    ],
+    [
+      0,
+      6
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      1,
+      4
+    ],
+    [
+      1,
+      7
+    ],
+    [
+      2,
+      5
+    ],
+    [
+      2,
+      8
+    ],
+    [
+      3,
+      4
+    ],
+    [
+      3,
+      5
+    ],
+    [
+      3,
+      6
+    ],
+    [
+      4,
+      5
+    ],
+    [
+      4,
+      7
+    ],
+    [
+      5,
+      8
+    ],
+    [
+      6,
+      7
+    ],
+    [
+      6,
+      8
+    ],
+    [
+      7,
+      8
+    ]
+  ],
+  "basis_gates": [
+    "rz",
+    "sx",
+    "x",
+    "cx"
+  ],
+  "noise": {
+    "model": "official",
+    "p1": 0.001,
+    "p2": 0.005,
+    "p_readout": 0.01
+  },
+  "design_rationale": "3x3 torus (4-regular, diameter 2). The knapsack QUBO couples all 36 qubit pairs; on Processor B (diameter 4, one degree-5 hub) routing adds 17 SWAPs and 49 extra CX. Wrap-around edges put every qubit within 2 hops, cutting SWAPs to 9 and CX from 121 to 89."
+}

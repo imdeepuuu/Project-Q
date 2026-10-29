@@ -1,0 +1,85 @@
+{
+  "name": "Processor B (9q, dense K5-minus-2 core + sparse tail)",
+  "n_qubits": 9,
+  "coupling_map": [
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      2
+    ],
+    [
+      0,
+      3
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      1,
+      3
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      1,
+      4
+    ],
+    [
+      2,
+      4
+    ],
+    [
+      4,
+      5
+    ],
+    [
+      5,
+      6
+    ],
+    [
+      6,
+      7
+    ],
+    [
+      7,
+      8
+    ]
+  ],
+  "bidirectional": true,
+  "basis_gates": [
+    "rz",
+    "sx",
+    "x",
+    "cx"
+  ],
+  "noise_model": {
+    "type": "depolarizing+readout",
+    "p_1q_depolarizing": 0.001,
+    "p_cx_depolarizing": 0.005,
+    "p_readout": 0.01,
+    "noised_1q_gates": [
+      "rz",
+      "sx",
+      "x"
+    ]
+  },
+  "transpile": {
+    "optimization_level": 1,
+    "seed_transpiler": 42,
+    "shots": 4096
+  },
+  "graph_stats": {
+    "edges": 12,
+    "max_degree": 4,
+    "mean_degree": 2.67,
+    "diameter": 6,
+    "avg_shortest_path": 2.667
+  },
+  "design_rationale": "Co-designed for this problem: the knapsack cost Hamiltonian couples every pair of items (w_i*w_j terms => K5). Qubits 0-3 form a K4 and qubit 4 couples to 1 and 2, so 8 of the 10 required ZZ pairs are native. Qubits 5-8 form a sparse tail that remains available for larger encodings. This experiment routes the same five-item QAOA circuit on A and B; the dense core preserves most of its K5 cost-layer couplings while the tail is unused."
+}

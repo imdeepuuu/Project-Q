@@ -1,77 +1,53 @@
-# PS-O3: 0/1 Knapsack with QAOA
+# QFF 2026 Phase 2 — PS-O3: Resource-Constrained Item Selection (0/1 Knapsack) with QAOA
 
-This project formulates the five-item knapsack instance as a QUBO, checks it against exhaustive
-classical search, optimizes a depth-one QAOA circuit, and compares the same logical circuit routed
-onto Processor A and Processor B.
+**Team:** KanyaRaasi 
+**Problem statement:** PS-O3 (Optimization track), same as Phase 1
 
-## Problem and formulation
+p = 1 QAOA on the locked 9-qubit knapsack QUBO (5 item bits + 4 binary slack bits, P = 5), benchmarked on Processors A, B and our Processor D (a 3×3 torus), ideal and with the official noise model.
 
-| Item | Value | Weight |
-|---:|---:|---:|
-| 1 | 10 | 5 |
-| 2 | 4 | 3 |
-| 3 | 7 | 4 |
-| 4 | 5 | 2 |
-| 5 | 8 | 6 |
+## How to run
 
-Capacity: `15`. The classical optimum selects items 1-4 (value `26`, weight `14`).
-
-For the five-qubit comparison, the QUBO uses `h = W - sum(weight_i * x_i)` and minimizes
-`-sum(value_i * x_i) - 3h + h^2`. This quadratic residual penalty is calibrated for this fixed
-instance; exhaustive enumeration verifies that its unique ground state is feasible and agrees
-with the classical optimum. For general instances, `qubo_slack` in `src/problem.py` supplies the
-standard exact binary-slack QUBO (nine variables for this instance), with a penalty coefficient
-large enough to exclude infeasible ground states. That larger encoding cannot run on five-qubit
-Processor A, so the A/B routing comparison uses the same calibrated five-qubit QUBO on both.
-
-## Reproduce
-
-Use Python 3.10 or later:
-
-```powershell
-python -m pip install -r requirements.txt
-python -m pytest
-python -m src.benchmark
+```
+python -m venv opt-env
+opt-env\Scripts\activate            # Windows
+source opt-env/bin/activate         # macOS / Linux
+pip install -r requirements.txt
+jupyter nbconvert --to notebook --execute --inplace main.ipynb
 ```
 
-`src.benchmark` runs exhaustive search, the noise-free statevector QAOA parameter optimizer,
-noisy Aer simulations on both processors, and a 20-seed routing sweep. The identical synthetic
-gate/readout noise model is used for A and B. Results are written to:
+Or open `main.ipynb` in Jupyter and run all cells. The full notebook takes about 1 minute on a laptop CPU (the landscape, about 50 s, is the slowest step). Set `RECOMPUTE_LANDSCAPE = False` in the first code cell to reload `results/tables/landscape_D_noisy.npz` instead.
 
-- `results/tables/processor_comparison.csv`
-- `results/tables/routing_seed_sweep.csv`
-- `results/tables/routing_seed_summary.csv`
-- `results/benchmark_summary.json`
-- `results/figures/routing_comparison.png`
+All required runs use the official settings in `qff_phase2.py` (unchanged): basis rz/sx/x/cx, optimization_level 1, SABRE, seed_transpiler 42, seed_simulator 42, 4096 shots, official noise. QAOA initializations use `numpy.random.default_rng(seed)` with seeds 0–4.
 
-Run `main.ipynb` for the same end-to-end experiment in notebook form. The circuit is simulated,
-not executed on physical quantum hardware; reported runtimes are local software timings and will
-vary by machine.
+## Key results
 
-## Repository layout
+V\* = 26 (items 1, 2, 3, 4; weight 14/15). Uniform random baseline: P_feasible = 28/32 = 0.875, P_opt = 1/32 = 0.031.
 
-```text
-README.md
-main.ipynb
-requirements.txt
-data/
-  raw/
-  processed/
-processors/
-  processor_A.json
-  processor_B.json
-src/
-  problem.py
-  processors.py
-  routing.py
-  metrics.py
-  visualization.py
-  benchmark.py
-tests/
-results/
-  tables/
-  figures/
-report.md
-assets/
-  qff_phase1_latex_images/
+| Processor | Condition | CX | Depth | SWAPs | CX overhead | P_feasible | P_opt | Best feasible | % of V\* |
+|---|---|---|---|---|---|---|---|---|---|
+| A | ideal / noisy | not executable: needs 9 qubits, has 5 | | | | | | | |
+| B | ideal | 121 | 117 | 17 | 49 | 0.959 | 0.021 | 26 | 100 |
+| B | noisy | 121 | 117 | 17 | 49 | 0.943 | 0.025 | 26 | 100 |
+| D | ideal | 89 | 76 | 9 | 17 | 0.956 | 0.023 | 26 | 100 |
+| D | noisy | 89 | 76 | 9 | 17 | 0.943 | 0.023 | 26 | 100 |
+
+Logical CX = 72 on every processor. Processor D cuts CX by 26%, SWAPs from 17 to 9 and depth from 117 to 76 compared with B.
+
+Bell state on D: F = 0.9633 ± 0.0021 (adjacent pair 0–1, noisy) and 0.9548 ± 0.0023 (farthest pair 0–4, distance 2, noisy); both 1.0000 ideal.
+
+Full discussion: `report.md`.
+
+## Layout
+
 ```
+README.md, main.ipynb, requirements.txt, qff_phase2.py (organizer module, unchanged), report.md
+data/instance.json                 PS-O3 section of the locked instances.json
+processors/processor_{A,B,D}.json  D is the frozen design
+src/knapsack.py                    QUBO, Hamiltonian, QAOA circuit, optimizer, evaluation
+results/tables/                    results.csv (kit format), bell.csv, quality.csv, qaoa_runs.json, qubo_9x9.json, landscape_D_noisy.npz
+results/figures/                   PNG figures used in the report
+```
+
+## AI use
+
+Claude (Anthropic) was used to help write the QUBO/QAOA code, search candidate Processor D topologies and draft the README and report. All numbers come from running `main.ipynb`; the team checked the formulation and results and is responsible for them.
