@@ -32,7 +32,20 @@ Because every aᵢ > 0, **every pair of variables is coupled**: the cost graph i
 | 0–4 | 2 | ideal | 4 | +1.000 ± 0.000 | −1.000 ± 0.000 | +1.000 ± 0.000 | 1.0000 ± 0.0000 |
 | 0–4 | 2 | noisy | 4 | +0.945 ± 0.005 | −0.936 ± 0.005 | +0.939 ± 0.005 | 0.9548 ± 0.0023 |
 
-The ideal runs reach the exact values (XX = +1, YY = −1, ZZ = +1), confirming the circuits and bases. With noise, the adjacent pair loses about 3.7% fidelity. Most of that comes from readout: a 1% bit flip on each of two qubits turns about 2% of shots from even to odd parity, which lowers each correlator by about 0.04. The rest comes from depolarizing on the CX and the single-qubit gates. The distant pair needs a SWAP, so the transpiled circuit has 4 CX instead of 1; the three extra noisy CX cost another 0.0085 in fidelity, a difference of about 2.7 standard errors. Distance on the coupling graph turns directly into extra CX and extra error. That is why D was designed to keep every pair within distance 2.
+The ideal runs reach the exact values (XX = +1, YY = −1, ZZ = +1), confirming the circuits and bases. With noise, the adjacent pair loses about 3.7% fidelity. Most of that comes from readout: a 1% bit flip on each of two qubits turns about 2% of shots from even to odd parity, which lowers each correlator by about 0.04. The rest comes from depolarizing on the CX and the single-qubit gates. The distant pair needs a SWAP, so the transpiled circuit has 4 CX instead of 1, and its measured fidelity is 0.0085 lower. Distance on the coupling graph turns directly into extra CX and extra error. That is why D was designed to keep every pair within distance 2.
+
+**Checking the noisy numbers** (`results/tables/bell_noise_check.csv`). We ran the same transpiled circuits with 2,000,000 shots to get the expected fidelity with negligible sampling error (about 0.0003), and repeated the 4096-shot experiment with 40 different simulator seeds:
+
+| Pair | CX | Reported F (kit SE) | Expected F (2M shots) | 40 seeds: mean ± std |
+|---|---|---|---|---|
+| 0–1 | 1 | 0.9633 ± 0.0021 | 0.9631 | 0.9629 ± 0.0030 |
+| 0–4 | 4 | 0.9548 ± 0.0023 | 0.9561 | 0.9556 ± 0.0036 |
+
+Both reported values match the expected fidelities, so the noisy results are correct. Two refinements:
+- **The real uncertainty is about 1.5× the kit's SE.** The SE formula assumes the three bases are sampled independently, but `bell_experiment` measures all three with the same simulator seed, so their sampling noise is correlated. The 40-seed spread (0.0030 and 0.0036) is the honest error bar.
+- **The near/far gap is real but smaller than measured.** The expected cost of the 3 extra CX is 0.0070 in fidelity. The measured gap, 0.0085, is 1.8× the real spread, so a single 4096-shot run alone would not prove it; the 2,000,000-shot reference does.
+
+An independent implementation of the Bell procedure (our own circuits and parity counting) reproduces both reported noisy fidelities exactly, well within the kit's 2-standard-error requirement.
 
 ## 3. Processor D design (Objective 2)
 
