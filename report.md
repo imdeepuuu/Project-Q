@@ -17,6 +17,19 @@ Because every aᵢ > 0, **every pair of variables is coupled**: the cost graph i
 
 **Classical benchmark.** Exhaustive search over the 32 item subsets gives V\* = 26 with items {1, 2, 3, 4} (weight 14), the unique optimum. 28 of 32 subsets are feasible. Brute force over all 512 QUBO bitstrings gives the minimum −26 at the same items with slack s = 1, so the QUBO's ground state is the true optimum at P = 5.
 
+**Checking the encoding, not just its minimum.** The notebook also evaluates the kit's formula directly on all 512 bitstrings and compares it with the saved 9 × 9 matrix: 0 mismatches. Then, for each of the 32 item subsets, it takes the lowest energy over the 16 slack values:
+- **All 28 feasible bags** get exactly −(value): the slack can always absorb the unused capacity, so the penalty is zero and the encoding is exact.
+- **All 4 overweight bags** score worse than the optimum, so P = 5 is large enough:
+
+| Overweight items | Value | Weight | Lowest energy | vs optimum (−26) |
+|---|---|---|---|---|
+| {1, 3, 4, 5} | 30 | 17 | −10 | worse by 16 |
+| {1, 2, 4, 5} | 27 | 16 | −22 | worse by 4 |
+| {1, 2, 3, 5} | 29 | 18 | +16 | worse by 42 |
+| {1, 2, 3, 4, 5} | 34 | 20 | +91 | worse by 117 |
+
+The tightest case is {1, 2, 4, 5}: one unit over capacity costs P·1² = 5, which outweighs its extra value of 1 over the optimum. That is why P = 1 fails (Section 6) and any P ≥ 2 works.
+
 **Random baseline.** Sampling item bits uniformly gives P_feasible = 0.875 and P_opt = 1/32 = 0.031. Because most subsets fit, P_feasible is a demanding baseline, and we compare against it explicitly.
 
 **Cost Hamiltonian.** With zᵢ = (1 − Zᵢ)/2 the QUBO becomes 9 Z terms + 36 ZZ terms + a constant (46 Pauli terms). Its diagonal matches the QUBO on all 512 bitstrings. The largest non-identity coefficient is 120, so we use H/120 inside QAOA, as the kit recommends; all γ values below are in units of this scaled Hamiltonian.
