@@ -51,21 +51,24 @@ An independent implementation of the Bell procedure (our own circuits and parity
 
 **Bottleneck on B.** On Processor B the bound p = 1 circuit needs 72 logical CX but 121 after routing: 17 SWAPs, 49 CX overhead (68% extra), depth 117 and two-qubit depth 79. B has diameter 4 and an uneven degree profile (degrees 1 to 5, one leaf qubit), while our cost graph is K₉, so many of the 36 interactions are between distant qubits.
 
-**Design.** Processor D is a 3×3 torus: the 3×3 grid plus wrap-around edges on each row and column. It has 9 qubits and 18 edges, every qubit has degree exactly 4 (the maximum allowed), and the diameter is 2. It passes `validate_processor_d` and uses the official noise rates.
+**Design.** Processor D is a 3×3 torus: the 3×3 grid plus wrap-around edges on each row and column. It has 9 qubits and 18 edges, every qubit has degree exactly 4 (the maximum allowed), and the diameter is 2. It passes `validate_processor_d` (the notebook also prints each rule: 9 qubits, connected, maximum degree 4, gates rz/sx/x/cx, official noise) and uses the official noise rates.
+
+**Frozen.** `processors/processor_D.json` has not changed since commit `78fbcd0`. The notebook loads it once, in Section 3, prints its SHA-256 fingerprint (`02ac9d06…e7cc537b`), and uses that same object for the Bell test, every D benchmark row and the landscape.
 
 ![Processors B and D](results/figures/processors_B_D.png)
 
-**How we chose it.** We measured the actual bound QAOA circuit with `circuit_metrics()` on every valid candidate we could generate: circulant graphs C_n(j₁, j₂) on 9–12 qubits, about 130 random 4-regular graphs on 9 and 10 qubits, and 3×4, 2×5 and 2×6 tori.
+**How we chose it** (notebook Section 6, `results/tables/processor_D_search.csv`). We measured the bound p = 1 QAOA circuit with the official `circuit_metrics()` on 153 valid candidates: circulant graphs C_n(j₁, j₂) on 9–12 qubits, random 4-regular graphs on 9 and 10 qubits (seeds 0–59), 3×4, 2×5 and 2×6 tori, and the plain 3×3 grid. **The 3×3 torus ranks first** by CX count. Best of each family:
 
-| Candidate | CX | Depth | SWAPs |
-|---|---|---|---|
-| Processor B (reference) | 121 | 117 | 17 |
-| **3×3 torus (chosen)** | **89** | **76** | **9** |
-| best random 4-regular, 9 qubits | 94 | 80 | 8 |
-| circulant C₉(1, 3) | 99 | 90 | 9 |
-| 3×4 torus, 12 qubits | 108 | 109 | 12 |
+| Candidate | Qubits | Couplers | Diameter | CX | Depth | SWAPs |
+|---|---|---|---|---|---|---|
+| **3×3 torus (chosen)** | 9 | 18 | 2 | **89** | **76** | **9** |
+| best random 4-regular (9 qubits, seed 58) | 9 | 18 | 2 | 95 | 85 | 9 |
+| best circulant, C₁₂(3, 4) | 12 | 24 | 3 | 98 | 89 | 10 |
+| best other torus, 3×4 | 12 | 24 | 3 | 108 | 109 | 12 |
+| 3×3 grid, no wrap-around | 9 | 12 | 4 | 117 | 110 | 15 |
+| Processor B (reference) | 9 | 12 | 4 | 121 | 117 | 17 |
 
-Extra qubits did not help: with K₉ every logical qubit has to interact with every other, so the router gains more from short distances than from spare qubits.
+The grid row isolates what the wrap-around edges buy: the same 3×3 layout without them needs 117 CX, so the 6 wrap-around couplers save 28 CX. Extra qubits did not help: the best 12-qubit candidates are worse, because with K₉ every logical qubit must interact with every other, so the router gains more from short distances than from spare qubits.
 
 **Expected effect vs measured.** We expected D to roughly halve the SWAPs and cut CX by about a quarter, which should reduce the noise penalty without changing the ideal result. Measured on the same angles:
 
@@ -83,7 +86,10 @@ Extra qubits did not help: with K₉ every logical qubit has to interact with ev
 
 The ideal rows prepare the same state on both processors, so their difference is shot noise. The noise-induced rise in mean QUBO cost is 37% smaller on D, consistent with 26% fewer CX and a 46% smaller two-qubit depth. P_feasible is the same on both, because feasibility is a coarse property that survives this level of noise. The gain from D shows up in the energy, not in the feasibility rate.
 
-**Trade-off.** The torus needs wrap-around couplers between opposite edges of the grid. On a planar superconducting chip these are long connections that are hard to fabricate and add crosstalk, and giving every qubit degree 4 raises crosstalk and frequency-crowding risk compared with B. The design is also tuned to dense, all-to-all cost graphs; for a sparse problem such as a chain, a simpler lattice would do as well with fewer couplers.
+**Trade-off.** We first checked whether D only suits our all-to-all problem. On p = 1 QAOA circuits for 30 random 9-node cost graphs (edge probability 0.5), D needed fewer routing CX than B on all 30 (mean overhead 9.7 vs 17.0 CX; the 3×3 grid without wrap-around averaged 19.0). So for 9-qubit workloads the price of D is not performance; it is hardware:
+- **50% more couplers** than B (18 vs 12), and every qubit at the maximum degree of 4, which raises crosstalk and frequency-crowding risk on real superconducting hardware.
+- **6 of the 18 couplers are wrap-around links** between opposite edges of the grid. A torus cannot be laid flat with short links only, so these would be long connections that are hard to fabricate and noisier than the official uniform noise model assumes.
+- **No spare qubits.** D uses all 9 qubits for a 9-variable problem; a finer slack encoding or one more item would not fit, while the kit allowed up to 12.
 
 ## 4. QAOA and benchmarking (Objective 3)
 
